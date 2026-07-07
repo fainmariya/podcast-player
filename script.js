@@ -6,6 +6,7 @@ const loadMoreBtn = document.querySelector("#load-more-btn")
 const BASE_URL = "https://listen-api-test.listennotes.com/api/v2";
 let currentPage = 1;
 let nextPage=null;
+isLoading = false;
 
 function getBestPodcastsUrl(){
     
@@ -15,7 +16,9 @@ function getBestPodcastsUrl(){
 
 
 async function fetchBestPodcasts(){
+    if (isLoading) return;
     const url= getBestPodcastsUrl();
+    isLoading = true;
     loader.style.display = "block";
     try {
         const response = await fetch(url);
@@ -24,7 +27,6 @@ async function fetchBestPodcasts(){
         }
         const data = await response.json();
         nextPage = data.next_page_number;
-        console.log("next page:", nextPage);
         data.podcasts.forEach(podcast => {
         renderPodcastCard(podcast);
         
@@ -33,6 +35,7 @@ async function fetchBestPodcasts(){
         console.error(error);
       } finally {
         loader.style.display = "none";
+        isLoading = false;
       }
 
 }
