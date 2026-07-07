@@ -5,6 +5,7 @@ const loadMoreBtn = document.querySelector("#load-more-btn")
 
 const BASE_URL = "https://listen-api-test.listennotes.com/api/v2";
 let currentPage = 1;
+let nextPage=null;
 
 function getBestPodcastsUrl(){
     
@@ -15,16 +16,27 @@ function getBestPodcastsUrl(){
 
 async function fetchBestPodcasts(){
     const url= getBestPodcastsUrl();
-    const response = await fetch(url)
-    const data = await response.json();
-    
-    data.podcasts.forEach(podcast => {
+    loader.style.display = "block";
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("Failed to fetch podcasts");
+        }
+        const data = await response.json();
+        nextPage = data.next_page_number;
+        console.log("next page:", nextPage);
+        data.podcasts.forEach(podcast => {
         renderPodcastCard(podcast);
+        
     });
-
+      } catch (error) {
+        console.error(error);
+      } finally {
+        loader.style.display = "none";
+      }
 
 }
-fetchBestPodcasts();
+
 function renderPodcastCard(podcast){
     const podcastCard = document.createElement('div');
     podcastCard.classList.add('podcast__card');
@@ -39,3 +51,11 @@ function renderPodcastCard(podcast){
 
 }
 fetchBestPodcasts();
+loadMoreBtn.addEventListener('click',function(){
+   if (nextPage){
+    currentPage = nextPage
+   
+ fetchBestPodcasts()}
+
+  })
+  
