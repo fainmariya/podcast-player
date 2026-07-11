@@ -8,6 +8,8 @@ let currentPage = 1;
 let nextPage=null;
 let isLoading = false;
 let searchTimeout = null;
+let currentSearchQuery = "";
+let nextSearchOffset = null;
 
 function getBestPodcastsUrl(){
     
@@ -110,10 +112,14 @@ async function fetchSearchPodcasts(query) {
         }
         const dataSearch = await response.json();
         podcastsList.innerHTML = "";
-        dataSearch.results.forEach((result) => {
+        currentSearchQuery = dataSearch
+        currentSearchQuery.results.forEach((result) => {
             renderPodcastCard(result.podcast);
           });
-        
+          
+          nextSearchOffset = dataSearch.next_offset
+          console.log("currentSearchQuery:", currentSearchQuery);
+console.log("nextSearchOffset:", nextSearchOffset);
       } catch (error) {
         console.error(error);
       } finally {
