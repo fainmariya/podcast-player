@@ -1,7 +1,12 @@
-const searchInput = document.querySelector("#search-input")
-const loader = document.querySelector("#loader")
-const podcastsList = document.querySelector("#podcasts-list")
-const loadMoreBtn = document.querySelector("#load-more-btn")
+const searchInput = document.querySelector("#search-input");
+const loader = document.querySelector("#loader");
+const podcastsList = document.querySelector("#podcasts-list");
+const loadMoreBtn = document.querySelector("#load-more-btn");
+const app = document.querySelector("#app");
+const homePage = document.querySelector("#home-page");
+const detailsPage = document.querySelector("#details-page");
+
+
 
 const BASE_URL = "https://listen-api-test.listennotes.com/api/v2";
 let currentPage = 1;
@@ -55,6 +60,9 @@ function renderPodcastCard(podcast){
         <h3>${cardTitle}</h3>
         <p>${cardPublisher}</p>
     `
+    podcastCard.addEventListener('click', function(){
+        fetchPodcastDetails(podcast.id)
+    })
     podcastsList.append(podcastCard)
 
 }
@@ -141,4 +149,52 @@ async function fetchSearchPodcasts(query, offset) {
         isLoading = false;
       }
 }
-  
+function getPodcastDetailsUrl(podcastId){
+    const podcastIdUrl = `${BASE_URL}/podcasts/${podcastId}`
+    return podcastIdUrl
+}
+async function fetchPodcastDetails(podcastId){
+    const urlPodcastDetails = getPodcastDetailsUrl(podcastId);
+    const responsePodcastDetails = await fetch(urlPodcastDetails);
+        if (!responsePodcastDetails.ok) {
+            throw new Error("Failed to fetch podcasts");
+        }
+        const podcastSearch = await responsePodcastDetails.json();
+        
+        renderPodcastDetailsPage(podcastSearch);  
+}
+function renderPodcastDetailsPage(podcastSearch){
+    homePage.hidden = true;
+    detailsPage.hidden = false;
+    
+
+    detailsPage.innerHTML = `
+        <h2>${podcastSearch.title}</h2>
+        <button id="back-to-home-btn">Back to podcasts</button>
+        <div>
+           <ul id="episodes-list"></ul>
+        </div>
+    `;
+    const listDetail = document.querySelector("#episodes-list");
+    podcastSearch.episodes.forEach(function(episode){
+        const li = document.createElement("li");
+        const episodeDate = new Date(episode.pub_date_ms).toLocaleDateString();
+        const episodeMinutes = Math.floor(episode.audio_length_sec / 60);
+        const episodeSeconds = episode.audio_length_sec % 60;
+        li.textContent = episode.title + " - " + episodeDate + " - " + episodeMinutes + "min " + episodeSeconds + "sec"  ; 
+        
+        const ul = document.querySelector("ul");
+        listDetail.append(li);
+    })
+    const backBtn = document.querySelector("#back-to-home-btn")
+    backBtn.addEventListener('click', function(){
+        homePage.hidden = false;
+        detailsPage.hidden = true;
+    })
+    
+    }
+    
+    
+    
+        
+
