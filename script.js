@@ -61,7 +61,7 @@ function renderPodcastCard(podcast){
         <p>${cardPublisher}</p>
     `
     podcastCard.addEventListener('click', function(){
-        fetchPodcastDetails(podcast.id)
+        fetchPodcastDetails(podcast)
     })
     podcastsList.append(podcastCard)
 
@@ -153,37 +153,75 @@ function getPodcastDetailsUrl(podcastId){
     const podcastIdUrl = `${BASE_URL}/podcasts/${podcastId}`
     return podcastIdUrl
 }
-async function fetchPodcastDetails(podcastId){
-    const urlPodcastDetails = getPodcastDetailsUrl(podcastId);
+async function fetchPodcastDetails(podcast){
+    const idPodcast = podcast.id
+    const urlPodcastDetails = getPodcastDetailsUrl(idPodcast);
     const responsePodcastDetails = await fetch(urlPodcastDetails);
         if (!responsePodcastDetails.ok) {
             throw new Error("Failed to fetch podcasts");
         }
         const podcastSearch = await responsePodcastDetails.json();
         
-        renderPodcastDetailsPage(podcastSearch);  
+        renderPodcastDetailsPage(podcastSearch, podcast);  
 }
-function renderPodcastDetailsPage(podcastSearch){
+function renderPodcastDetailsPage(podcastSearch, selectedPodcast){
     homePage.hidden = true;
     detailsPage.hidden = false;
     
-
+    history.pushState({ page: "details" }, "", "#details");
+    const detailsImage = selectedPodcast.image || selectedPodcast.thumbnail;
+    const detailsTitle = selectedPodcast.title || selectedPodcast.title_original;
+    const detailsPublisher = selectedPodcast.publisher || selectedPodcast.publisher_original;
     detailsPage.innerHTML = `
-        <h2>${podcastSearch.title}</h2>
-        <button id="back-to-home-btn">Back to podcasts</button>
-        <div>
-           <ul id="episodes-list"></ul>
+    <button id="back-to-home-btn" class="details__back">← Back</button>
+
+    <section class="details__hero">
+        <img src="${detailsImage}" alt="${detailsTitle}" class="details__image">
+
+        <div class="details__info">
+            <h2>${detailsTitle}</h2>
+            <p class="details__publisher">${detailsPublisher}</p>
+            <p class="details__description">${podcastSearch.description}</p>
         </div>
-    `;
+    </section>
+
+    <section class="episodes">
+        <h3>Episodes</h3>
+        <ul id="episodes-list" class="episodes__list"></ul>
+    </section>
+`;
     const listDetail = document.querySelector("#episodes-list");
     podcastSearch.episodes.forEach(function(episode){
         const li = document.createElement("li");
         const episodeDate = new Date(episode.pub_date_ms).toLocaleDateString();
         const episodeMinutes = Math.floor(episode.audio_length_sec / 60);
         const episodeSeconds = episode.audio_length_sec % 60;
-        li.textContent = episode.title + " - " + episodeDate + " - " + episodeMinutes + "min " + episodeSeconds + "sec"  ; 
-        
-        const ul = document.querySelector("ul");
+        li.classList.add("episode__item");
+
+        const episodeImage = episode.thumbnail || episode.image || detailsImage;
+        const cleanDescription = episode.description
+    ? episode.description.replace(/<[^>]*>/g, "")
+    : "";
+
+const shortDescription = cleanDescription.length > 180
+    ? cleanDescription.slice(0, 180) + "..."
+    : cleanDescription;
+
+li.innerHTML = `
+    <img src="${episodeImage}" alt="${episode.title}" class="episode__image">
+
+    <div class="episode__content">
+        <h4 class="episode__title">${episode.title}</h4>
+        <p class="episode__description">${shortDescription}</p>
+
+        <div class="episode__meta">
+            <button class="episode__play-btn">▶</button>
+            <span>${episodeDate}</span>
+            <span>·</span>
+            <span>${episodeMinutes} min ${episodeSeconds} sec</span>
+        </div>
+    </div>
+`;
         listDetail.append(li);
     })
     const backBtn = document.querySelector("#back-to-home-btn")
@@ -193,7 +231,10 @@ function renderPodcastDetailsPage(podcastSearch){
     })
     
     }
-    
+    window.addEventListener("popstate", function () {
+        homePage.hidden = false;
+        detailsPage.hidden = true;
+    });
     
     
         
