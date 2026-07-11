@@ -46,7 +46,7 @@ async function fetchBestPodcasts(){
 function renderPodcastCard(podcast){
     const podcastCard = document.createElement('div');
     podcastCard.classList.add('podcast__card');
-    let cardTitle = podcast.title || podcast.title_original;;
+    let cardTitle = podcast.title || podcast.title_original;
     let cardPublisher = podcast.publisher || podcast.publisher_original;
     let cardImage = podcast.image || podcast.thumbnail;
     
@@ -55,22 +55,24 @@ function renderPodcastCard(podcast){
         <h3>${cardTitle}</h3>
         <p>${cardPublisher}</p>
     `
-   
-    
-    
-      
-    
     podcastsList.append(podcastCard)
 
 }
 fetchBestPodcasts();
-loadMoreBtn.addEventListener('click',function(){
-   if (nextPage){
-    currentPage = nextPage
-   
- fetchBestPodcasts()}
 
-  })
+loadMoreBtn.addEventListener('click',function(){
+    if(currentSearchQuery !== ''){
+        if (nextSearchOffset){
+            fetchSearchPodcasts(currentSearchQuery, nextSearchOffset)
+            
+        }
+        return;
+        }
+    if (nextPage) {
+        currentPage = nextPage;
+        fetchBestPodcasts()
+    }
+    });
   searchInput.addEventListener("input",function(){
     const searchValue  = searchInput.value.trim();
 
@@ -78,30 +80,39 @@ loadMoreBtn.addEventListener('click',function(){
 
     searchTimeout = setTimeout(function(){
         if (searchValue === "") {
-            podcastsList.innerHTML ="";
-            currentPage =1;
+            podcastsList.innerHTML = "";
+            currentPage = 1;
             nextPage = null;
+            currentSearchQuery = "";
+            nextSearchOffset = null;
+        
             fetchBestPodcasts();
-
-            
+        
             return;
-          }
+        }
           fetchSearchPodcasts(searchValue);
   }, 1000);
     })
     
-function getSearchPodcastsUrl(query){
+function getSearchPodcastsUrl(query, offset){
     const encodedQuery = encodeURIComponent(query);
-    const searchUrl = `${BASE_URL}/search?q=${encodedQuery}&type=podcast`
+    let searchUrl;
+    if(!offset){
+        searchUrl = `${BASE_URL}/search?q=${encodedQuery}&type=podcast`;
+    } else{
+        searchUrl = `${BASE_URL}/search?q=${encodedQuery}&type=podcast&offset=${offset}`;
+    }
+   
     return searchUrl
 
 
 }
-async function fetchSearchPodcasts(query) {
+
+async function fetchSearchPodcasts(query, offset) {
     if (isLoading) return;
 
-    const urlSearchPodcast= getSearchPodcastsUrl(query);
-
+    const urlSearchPodcast= getSearchPodcastsUrl(query, offset);
+   
     isLoading = true;
     loader.style.display = "block";
 
@@ -111,15 +122,18 @@ async function fetchSearchPodcasts(query) {
             throw new Error("Failed to fetch podcasts");
         }
         const dataSearch = await response.json();
-        podcastsList.innerHTML = "";
-        currentSearchQuery = dataSearch
-        currentSearchQuery.results.forEach((result) => {
+        
+        if (!offset){
+            podcastsList.innerHTML = "";
+        }
+         
+        currentSearchQuery = query;
+        nextSearchOffset = dataSearch.next_offset;
+        
+        dataSearch.results.forEach((result) => {
             renderPodcastCard(result.podcast);
           });
           
-          nextSearchOffset = dataSearch.next_offset
-          console.log("currentSearchQuery:", currentSearchQuery);
-console.log("nextSearchOffset:", nextSearchOffset);
       } catch (error) {
         console.error(error);
       } finally {
