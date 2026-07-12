@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Podcast Player</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" type="image/png" href="./assets/logo/logo.png">
+</head>
+<body>
+    
+  <main id="app">
+    <section id="home-page">
+      <section class="hero">
+        <div class="hero__content">
+          <p class="hero__label">Podcast Player</p>
+          <h1>Listen to stories, ideas and inspiration</h1>
+          <p>Discover recently published podcasts and save your favorite episodes.</p>
+      
+          <input id="search-input" type="text" placeholder="Search podcasts...">
+          <p id="loader">Loading...</p>
+        </div>
+      
+        <img src="./assets/logo/logo.png" alt="PodWave logo" class="hero__logo">
+      </section>
+
+    
+
+    
+
+    <div class="podcasts-list" id="podcasts-list"></div>
+
+    <button id="load-more-btn">Load more</button>
+    </section>
+    
+    <section id="details-page" hidden></section>
+  </main>
+  <div id="global-player" class="global-player" hidden>
+    <div class="global-player__episode">
+      <img id="global-player-cover" class="global-player__cover" src="" alt="">
+      
+      <div class="global-player__text">
+        <p id="global-player-title" class="global-player__title">No episode selected</p>
+        <button id="global-player-return" class="global-player__return">
+          Back to episode
+        </button>
+      </div>
+    </div>
+  
+    <audio id="audio-player" controls></audio>
+  
+    <button id="global-player-close" class="global-player__close" aria-label="Close player">
+      ×
+    </button>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
