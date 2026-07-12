@@ -4,6 +4,7 @@
   
   body {
     margin: 0;
+    padding-bottom: 110px;
     min-height: 100vh;
     font-family: Arial, sans-serif;
     background:
@@ -15,11 +16,11 @@
   }
   
   #app {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
   }
-  
   
 
   .hero {
@@ -98,10 +99,11 @@
     font-size: 14px;
   }
   .details__image {
-    width: 280px;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 24px;
+    width: 320px;
+    height: 320px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 28px;
   }
   .details__hero {
     display: flex;
@@ -238,3 +240,293 @@
     transform: translateY(0);
     opacity: 0.85;
   }
+  
+  
+  .episode__player-slot {
+    width: 100%;
+    margin-top: 16px;
+  }
+  .details__play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 22px;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 16px 32px rgba(139, 92, 246, 0.28);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .details__play-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(236, 72, 153, 0.32);
+  }
+  
+  .details__play-btn:active {
+    transform: translateY(0);
+  }
+  .episode__play-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  
+  .episode__play-btn:hover {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    transform: scale(1.06);
+  }
+  .details__audio-slot {
+    margin-top: 18px;
+    max-width: 620px;
+  }
+  
+  #audio-player {
+    width: 100%;
+    display: block;
+  }
+  
+  .global-player {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+  
+    display: grid;
+    grid-template-columns: minmax(240px, 360px) 1fr auto;
+    align-items: center;
+    gap: 24px;
+  
+    padding: 14px 24px;
+    background: rgba(12, 12, 22, 0.96);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+  }
+  
+  .global-player[hidden] {
+    display: none;
+  }
+  
+  .global-player__episode {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  
+  .global-player__cover {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+  
+  .global-player__text {
+    min-width: 0;
+  }
+  
+  .global-player__title {
+    margin: 0 0 6px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .global-player__return {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  
+  .global-player__return:hover {
+    color: #ffffff;
+  }
+  
+  #audio-player {
+    width: 100%;
+  }
+  
+  .global-player__close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  
+  .global-player__close:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  
+  .episode__item--active {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+  }
+  .global-player {
+    flex-shrink: 0;
+  
+    width: min(calc(100% - 48px), 1120px);
+    margin: 0 auto 20px;
+  
+    display: grid;
+    grid-template-columns: 260px 1fr 40px;
+    align-items: center;
+    gap: 18px;
+  
+    padding: 12px 16px;
+    background: rgba(12, 12, 22, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  }
+  
+  .global-player[hidden] {
+    display: none;
+  }
+  
+  .global-player__episode {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  
+  .global-player__cover {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    max-width: 54px;
+    max-height: 54px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+  
+  .global-player__text {
+    min-width: 0;
+  }
+  
+  .global-player__title {
+    margin: 0 0 6px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+  
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .global-player__return {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .global-player__return:hover {
+    color: #ffffff;
+  }
+  
+  #audio-player {
+    width: 100%;
+    height: 42px;
+  }
+  
+  .global-player__close {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  
+  .global-player__close:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+  
+  html,
+body {
+  height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#app {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 40px 120px;
+  box-sizing: border-box;
+}
+#details-page {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.details__back {
+  margin-left: 0;
+  margin-bottom: 48px;
+}
+#app {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+#app::-webkit-scrollbar {
+  width: 8px;
+}
+
+#app::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#app::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+
+#app::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}

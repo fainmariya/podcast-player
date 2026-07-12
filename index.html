@@ -6,6 +6,7 @@
   <title>Podcast Player</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="icon" type="image/png" href="./assets/logo/logo.png">
+</head>
 <body>
     
   <main id="app">
@@ -34,6 +35,24 @@
     
     <section id="details-page" hidden></section>
   </main>
+  <div id="global-player" class="global-player" hidden>
+    <div class="global-player__episode">
+      <img id="global-player-cover" class="global-player__cover" src="" alt="">
+      
+      <div class="global-player__text">
+        <p id="global-player-title" class="global-player__title">No episode selected</p>
+        <button id="global-player-return" class="global-player__return">
+          Back to episode
+        </button>
+      </div>
+    </div>
+  
+    <audio id="audio-player" controls></audio>
+  
+    <button id="global-player-close" class="global-player__close" aria-label="Close player">
+      ×
+    </button>
+  </div>
 
   <script src="./script.js"></script>
 </body>
