@@ -17,7 +17,13 @@
           <h1>Listen to stories, ideas and inspiration</h1>
           <p>Discover recently published podcasts and save your favorite episodes.</p>
       
-          <input id="search-input" type="text" placeholder="Search podcasts...">
+          <div class="hero__actions">
+            <input id="search-input" type="text" placeholder="Search podcasts...">
+          
+            <button id="playlist-nav-btn" class="playlist-nav-btn">
+              My Playlist
+            </button>
+          </div>
           <p id="loader">Loading...</p>
         </div>
       
@@ -34,6 +40,7 @@
     </section>
     
     <section id="details-page" hidden></section>
+    <section id="playlist-page" hidden></section>
   </main>
   <div id="global-player" class="global-player" hidden>
     <div class="global-player__episode">

@@ -11,10 +11,64 @@ const globalPlayerCover = document.querySelector("#global-player-cover");
 const globalPlayerTitle = document.querySelector("#global-player-title");
 const globalPlayerReturn = document.querySelector("#global-player-return");
 const globalPlayerClose = document.querySelector("#global-player-close");
+const playlistPage = document.querySelector("#playlist-page");
+const playlistNavBtn = document.querySelector("#playlist-nav-btn");
 
 let currentPlayingEpisode = null;
+const PLAYLIST_KEY = "podcastPlaylist";
+const PLAYBACK_PROGRESS_KEY = "podcastPlaybackProgress";
 
+function getPlaylist() {
+    const playlistFromStorage = localStorage.getItem(PLAYLIST_KEY);
 
+    if (!playlistFromStorage) {
+        return [];
+    }
+
+    return JSON.parse(playlistFromStorage);
+}
+
+function savePlaylist(playlist) {
+    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(playlist));
+}
+
+function addEpisodeToPlaylist(episode) {
+    const playlist = getPlaylist();
+
+    const isAlreadyAdded = playlist.some(function(item) {
+        return item.id === episode.id;
+    });
+
+    if (isAlreadyAdded) {
+        return;
+    }
+
+    playlist.push(episode);
+    savePlaylist(playlist);
+}
+function getPlaybackProgress() {
+    const progressFromStorage = localStorage.getItem(PLAYBACK_PROGRESS_KEY);
+
+    if (!progressFromStorage) {
+        return {};
+    }
+
+    return JSON.parse(progressFromStorage);
+}
+
+function savePlaybackProgress(episodeId, currentTime) {
+    const progress = getPlaybackProgress();
+
+    progress[episodeId] = currentTime;
+
+    localStorage.setItem(PLAYBACK_PROGRESS_KEY, JSON.stringify(progress));
+}
+
+function getEpisodeSavedTime(episodeId) {
+    const progress = getPlaybackProgress();
+
+    return progress[episodeId] || 0;
+}
 const BASE_URL = "https://listen-api-test.listennotes.com/api/v2";
 let currentPage = 1;
 let nextPage=null;
@@ -223,54 +277,80 @@ function renderPodcastDetailsPage(podcastSearch, selectedPodcast){
         playEpisodeInGlobalPlayer(selectedEpisode, detailsImage);
     });
     const listDetail = document.querySelector("#episodes-list");
+
+    const playlist = getPlaylist();
+
     podcastSearch.episodes.forEach(function(episode){
         const li = document.createElement("li");
         li.dataset.episodeId = episode.id;
+
         const episodeDate = new Date(episode.pub_date_ms).toLocaleDateString();
         const episodeMinutes = Math.floor(episode.audio_length_sec / 60);
         const episodeSeconds = episode.audio_length_sec % 60;
+
         li.classList.add("episode__item");
 
         const episodeImage = episode.thumbnail || episode.image || detailsImage;
+
         const cleanDescription = episode.description
-    ? episode.description.replace(/<[^>]*>/g, "")
-    : "";
+            ? episode.description.replace(/<[^>]*>/g, "")
+            : "";
 
-const shortDescription = cleanDescription.length > 180
-    ? cleanDescription.slice(0, 180) + "..."
-    : cleanDescription;
-
-li.innerHTML = `
-    <img src="${episodeImage}" alt="${episode.title}" class="episode__image">
-
-    <div class="episode__content">
-        <h4 class="episode__title">${episode.title}</h4>
-        <p class="episode__description">${shortDescription}</p>
-
-        <div class="episode__meta">
-            <button class="episode__play-btn">▶</button>
-            <span>${episodeDate}</span>
-            <span>·</span>
-            <span>${episodeMinutes} min ${episodeSeconds} sec</span>
-        </div>
+            const shortDescription = cleanDescription.length > 180
+            ? cleanDescription.slice(0, 180) + "..."
+            : cleanDescription;
         
-    </div>
-    `;
-    const buttonPlay = li.querySelector(".episode__play-btn");
-    buttonPlay.addEventListener('click', function(){
+        const isEpisodeSaved = playlist.some(function(item) {
+            return item.id === episode.id;
+        });
+        
+        li.innerHTML = `
+        <img src="${episodeImage}" alt="${episode.title}" class="episode__image">
 
+        <div class="episode__content">
+            <h4 class="episode__title">${episode.title}</h4>
+            <p class="episode__description">${shortDescription}</p>
+
+            <div class="episode__meta">
+                <button class="episode__play-btn">▶</button>
+                <button class="episode__add-btn ${isEpisodeSaved ? "episode__add-btn--added" : ""}">
+                     ${isEpisodeSaved ? "✓" : "＋"}
+                </button>
+                <span>${episodeDate}</span>
+                <span>·</span>
+                <span>${episodeMinutes} min ${episodeSeconds} sec</span>
+            </div>
+        </div>
+    `;
+
+    const buttonPlay = li.querySelector(".episode__play-btn");
+    const buttonAdd = li.querySelector(".episode__add-btn");
+
+    buttonPlay.addEventListener("click", function(){
         updateMainEpisodeInfo(episode, detailsImage);
         playEpisodeInGlobalPlayer(episode, detailsImage);
     });
-        listDetail.append(li);
-    })
-    const backBtn = document.querySelector("#back-to-home-btn")
-    backBtn.addEventListener('click', function(){
-        homePage.hidden = false;
-        detailsPage.hidden = true;
-    })
+
+    buttonAdd.addEventListener("click", function(event) {
+        event.stopPropagation();
+        addEpisodeToPlaylist(episode);
     
-    }
+        buttonAdd.textContent = "✓";
+        buttonAdd.classList.add("episode__add-btn--added");
+    });
+
+    listDetail.append(li);
+});
+
+const backBtn = document.querySelector("#back-to-home-btn");
+
+backBtn.addEventListener("click", function(){
+    homePage.hidden = false;
+    detailsPage.hidden = true;
+});
+
+}
+    
 
     function updateMainEpisodeInfo(episode, fallbackImage) {
         const mainImage = document.querySelector("#details-main-image");
@@ -310,13 +390,20 @@ li.innerHTML = `
         globalPlayerCover.alt = episode.title;
         globalPlayerTitle.textContent = episode.title;
     
+        const savedTime = getEpisodeSavedTime(episode.id);
+        const startTime = savedTime > 10 ? savedTime - 10 : 0;
+
         audioPlayer.src = episode.audio;
         audioPlayer.load();
-        
-        audioPlayer.play().catch(function(error) {
-            console.error("Audio play failed:", error);
-            console.error("Problem audio URL:", episode.audio);
-        });
+
+        audioPlayer.addEventListener("loadedmetadata", function() {
+            audioPlayer.currentTime = startTime;
+
+            audioPlayer.play().catch(function(error) {
+                console.error("Audio play failed:", error);
+                console.error("Problem audio URL:", episode.audio);
+            });
+        }, { once: true }); 
     
         document.querySelectorAll(".episode__item--active").forEach((item) => {
             item.classList.remove("episode__item--active");
@@ -331,7 +418,9 @@ li.innerHTML = `
         if (!currentPlayingEpisode) return;
     
         homePage.hidden = true;
+        playlistPage.hidden = true;
         detailsPage.hidden = false;
+        
     
         const activeEpisodeItem = document.querySelector(`[data-episode-id="${currentPlayingEpisode.id}"]`);
     
@@ -350,9 +439,104 @@ li.innerHTML = `
         globalPlayer.hidden = true;
         currentPlayingEpisode = null;
     });
+
+    function renderPlaylistPage() {
+        const playlist = getPlaylist();
+    
+        homePage.hidden = true;
+        detailsPage.hidden = true;
+        playlistPage.hidden = false;
+    
+        playlistPage.innerHTML = `
+            <button id="playlist-back-btn" class="details__back">← Back</button>
+    
+            <section class="playlist">
+                <h2 class="playlist__title">My Playlist</h2>
+                <p class="playlist__subtitle">Episodes you saved for later</p>
+                <ul id="playlist-list" class="episodes__list"></ul>
+            </section>
+        `;
+    
+        const playlistList = document.querySelector("#playlist-list");
+    
+        if (playlist.length === 0) {
+            playlistList.innerHTML = `
+                <p class="playlist__empty">Your playlist is empty yet.</p>
+            `;
+        }
+    
+        playlist.forEach(function(episode) {
+            const li = document.createElement("li");
+            li.classList.add("episode__item");
+    
+            const episodeDate = new Date(episode.pub_date_ms).toLocaleDateString();
+            const episodeMinutes = Math.floor(episode.audio_length_sec / 60);
+            const episodeSeconds = episode.audio_length_sec % 60;
+            const episodeImage = episode.thumbnail || episode.image || "";
+            const isEpisodeSaved = playlist.some(function(item) {
+                return item.id === episode.id;
+            });
+    
+            li.innerHTML = `
+                <img src="${episodeImage}" alt="${episode.title}" class="episode__image">
+    
+                <div class="episode__content">
+                    <h4 class="episode__title">${episode.title}</h4>
+    
+                    <div class="episode__meta">
+                        <button class="episode__play-btn">▶</button>
+                        <button class="episode__remove-btn">Remove</button>
+                        <span>${episodeDate}</span>
+                        <span>·</span>
+                        <span>${episodeMinutes} min ${episodeSeconds} sec</span>
+                    </div>
+                </div>
+            `;
+    
+            const playBtn = li.querySelector(".episode__play-btn");
+            const removeBtn = li.querySelector(".episode__remove-btn");
+    
+            playBtn.addEventListener("click", function() {
+                playEpisodeInGlobalPlayer(episode, episodeImage);
+            });
+    
+            removeBtn.addEventListener("click", function() {
+                removeEpisodeFromPlaylist(episode.id);
+                renderPlaylistPage();
+            });
+    
+            playlistList.append(li);
+        });
+    
+        const playlistBackBtn = document.querySelector("#playlist-back-btn");
+    
+        playlistBackBtn.addEventListener("click", function() {
+            playlistPage.hidden = true;
+            homePage.hidden = false;
+        });
+    }
+    playlistNavBtn.addEventListener("click", function() {
+        renderPlaylistPage();
+    });
+
+    function removeEpisodeFromPlaylist(episodeId) {
+        const playlist = getPlaylist();
+    
+        const updatedPlaylist = playlist.filter(function(item) {
+            return item.id !== episodeId;
+        });
+    
+        savePlaylist(updatedPlaylist);
+    }
+    audioPlayer.addEventListener("timeupdate", function() {
+        if (!currentPlayingEpisode) return;
+    
+        savePlaybackProgress(currentPlayingEpisode.id, audioPlayer.currentTime);
+    });
     window.addEventListener("popstate", function () {
         homePage.hidden = false;
         detailsPage.hidden = true;
+        playlistPage.hidden = true;
     });
     
     

@@ -530,3 +530,135 @@ body {
 #app::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.35);
 }
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 680px;
+  margin-top: 34px;
+}
+
+#search-input {
+  flex: 1;
+  margin-top: 0;
+}
+
+.playlist-nav-btn {
+  min-height: 54px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(236, 72, 153, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.playlist-nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(236, 72, 153, 0.35);
+}
+
+.playlist-nav-btn:active {
+  transform: translateY(0);
+}
+.episode__remove-btn {
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 999px;
+  padding: 8px 14px;
+
+  background: rgba(248, 113, 113, 0.08);
+  color: #fecaca;
+
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.episode__remove-btn:hover {
+  background: rgba(248, 113, 113, 0.18);
+  color: #ffffff;
+}
+.episode__add-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.episode__add-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  transform: translateY(-1px);
+}
+
+.episode__add-btn:active {
+  transform: translateY(0);
+}
+
+.episode__add-btn--added {
+  background: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+}
+.episode__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.playlist .episode__item {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  align-items: center;
+  gap: 48px;
+
+  padding: 26px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.playlist .episode__image {
+  width: 320px;
+  height: 180px;
+  object-fit: cover;
+}
+
+.playlist .episode__content {
+  width: 100%;
+  min-width: 0;
+}
+
+.playlist .episode__title {
+  margin: 0 0 14px;
+  max-width: 100%;
+  text-align: left;
+}
+
+.playlist .episode__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.playlist .episode__image {
+  border-radius: 14px;
+}
